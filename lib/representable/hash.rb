@@ -32,6 +32,18 @@ module Representable
 
     def to_hash(options={}, binding_builder=Binding)
       hash = create_representation_with({}, options, binding_builder)
+      # --- added `required` option for properties:
+      required_field_with_nil_value = representable_map.find do |prop|
+        prop_opts = prop.instance_variable_get(:@definition).instance_variable_get(:@options)
+        attr_name = prop_opts[:as] || prop_opts[:name]
+        next if options[:include] && !options[:include].include?(attr_name.to_sym)
+        next if options[:exclude] && options[:exclude].include?(attr_name.to_sym)
+        required = prop_opts[:required].is_a?(TrueClass)
+        required ||= prop_opts[:required].is_a?(Proc) && prop_opts[:required].call(options: options, decorated: decorated)
+        required && hash[attr_name].nil?
+      end
+      return nil if required_field_with_nil_value.present?
+      # ---
 
       return hash if options[:wrap] == false
       return hash unless wrap = options[:wrap] || representation_wrap(options)

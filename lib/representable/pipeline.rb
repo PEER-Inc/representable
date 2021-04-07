@@ -37,7 +37,11 @@ module Representable
       arr = []
       input.each_with_index do |item_fragment, i|
         result = super(item_fragment, options.merge(index: i)) # DISCUSS: NO :fragment set.
-        Pipeline::Stop == result ? next : arr << result
+        # Pipeline::Stop == result ? next : arr << result
+        # --- changed to:
+        next if Pipeline::Stop == result
+        arr << result unless result.nil?
+        # ---
       end
       arr
     end
