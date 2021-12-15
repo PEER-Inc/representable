@@ -10,3 +10,5 @@ Gemfile.lock
 *.swp
 *.swo
 bin
+
+.scannerwork/
